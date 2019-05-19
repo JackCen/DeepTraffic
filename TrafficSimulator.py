@@ -69,15 +69,15 @@ class TrafficSimulator(object):
 				carID = order[i]
 
 				if self.carsPos[carID, 0] < self.EgoCarPos[0] and egoToMove:
-					if action == 1 and !egoTurned:
+					if action == 1 and not egoTurned:
 						egoTurned = self.egoTurn(-1)
-					elif action == 2 and !egoTurned:
+					elif action == 2 and not egoTurned:
 						egoTurned = self.egoTurn(1)
 					egoToMove = False
 
-				if carAction[carID] == 1 and !carTurned[carID]:
+				if carAction[carID] == 1 and not carTurned[carID]:
 					carTurned[carID] = self.carTurn(-1, carID)
-				elif carAction[carID] == 2 and !carTurned[carID]:
+				elif carAction[carID] == 2 and not carTurned[carID]:
 					carTurned[carID] = self.carTurn(1, carID)
 				elif action == 3:
 					self.carsSpeedFrac[carID] = max(1.00, self.carsSpeedFrac[carID] + 0.01)
@@ -122,6 +122,6 @@ class TrafficSimulator(object):
 
 	def self.reward(self):
 		return 1.0
-		
+
 	def print_grid(self):
 		print(np.flip(self.grid, axis=0))
