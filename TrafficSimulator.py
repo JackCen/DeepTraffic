@@ -60,7 +60,7 @@ class TrafficSimulator(object):
 		egoTurned = False
 		carTurned = [False] * self.numCars
 
-		for t in range(decisionFreq):
+		for t in range(self.decisionFreq):
 			order = np.flip(np.argsort(self.carsPos[:,0], axis = 0), axis = 0)
 			egoToMove = True
 			for i in range(self.numCars):
@@ -72,9 +72,9 @@ class TrafficSimulator(object):
 					elif action == 2 and not egoTurned:
 						egoTurned = self.egoTurn(1)
 					if action == 3:
-						self.EgoCarSpeedFrac = max(1.00, self.EgoCarSpeedFrac + 0.01)
+						self.EgoCarSpeedFrac = min(1.00, self.EgoCarSpeedFrac + 0.01)
 					elif action == 4:
-						self.EgoCarSpeedFrac = min(0.01, self.EgoCarSpeedFrac - 0.01)
+						self.EgoCarSpeedFrac = max(0.01, self.EgoCarSpeedFrac - 0.01)
 					egoToMove = False
 
 					self.checkCollisionEgo()
@@ -83,16 +83,18 @@ class TrafficSimulator(object):
 					carTurned[carID] = self.carTurn(-1, carID)
 				elif carAction[carID] == 2 and not carTurned[carID]:
 					carTurned[carID] = self.carTurn(1, carID)
-				elif action == 3:
-					self.carsSpeedFrac[carID] = max(1.00, self.carsSpeedFrac[carID] + 0.01)
-				elif action == 4:
-					self.carsSpeedFrac[carID] = min(0.01, self.carsSpeedFrac[carID] - 0.01)
+				elif carAction[carID] == 3:
+					self.carsSpeedFrac[carID] = min(1.00, self.carsSpeedFrac[carID] + 0.01)
+				elif carAction[carID] == 4:
+					self.carsSpeedFrac[carID] = max(0.01, self.carsSpeedFrac[carID] - 0.01)
 				self.checkCollisionCar(carID)
 
 			for i in range(self.numCars):
 				carID = order[i]
 				self.moveCar(carID)
 
+			print(self.carsTopSpeed)
+			print(self.carsSpeedFrac)
 			self.speedHistory.append(self.EgoCarTopSpeed * self.EgoCarSpeedFrac)
 			if len(self.speedHistory) >= 5: self.speedHistory.pop(0)
 
@@ -104,22 +106,23 @@ class TrafficSimulator(object):
 										int(np.around(self.EgoCarPos[1]))])
 		if frontCarSpeed > 0:
 			self.EgoCarSpeedFrac = frontCarSpeed / 2.0 / self.EgoCarTopSpeed
-		elif self.grid[int(np.around(self.EgoCarPos[0])) + 2 * self.carHeightGrid] > 0:
-			self.EgoCarSpeedFrac = self.grid[int(np.around(self.EgoCarPos[0])) + 2 * self.carHeightGrid] / self.EgoCarTopSpeed
+		elif self.grid[int(np.around(self.EgoCarPos[0])) + 2 * self.carHeightGrid, int(np.around(self.EgoCarPos[1]))] > 0:
+			self.EgoCarSpeedFrac = self.grid[int(np.around(self.EgoCarPos[0])) + 2 * self.carHeightGrid, int(np.around(self.EgoCarPos[1]))] / self.EgoCarTopSpeed
 
 	def checkCollisionCar(self, carID):
-		frontCarSpeed = np.max(self.grid[int(np.around(self.carsPos[carID, 0])) + self.carHeightGrid : (int(np.around(self.carsPos[carID, 0])) + 2 * self.carHeightGrid), 
+		if int(np.around(self.carsPos[carID, 0])) + self.carHeightGrid >= self.grid.shape[0]: return
+		frontCarSpeed = np.max(self.grid[int(np.around(self.carsPos[carID, 0])) + self.carHeightGrid : min((int(np.around(self.carsPos[carID, 0])) + 2 * self.carHeightGrid), self.grid.shape[0]), 
 										int(np.around(self.carsPos[carID, 1]))])
 		if frontCarSpeed > 0:
 			self.carsSpeedFrac[carID] = frontCarSpeed / 2.0 / self.carsTopSpeed[carID]
-		elif self.grid[int(np.around(self.carsPos[carID, 0])) + 2 * self.carHeightGrid] > 0:
-			self.carsSpeedFrac[carID] = self.grid[int(np.around(self.EgoCarPos[0])) + 2 * self.carHeightGrid] / self.carsTopSpeed[carID]
+		elif (int(np.around(self.carsPos[carID, 0])) + 2 * self.carHeightGrid) < self.grid.shape[0] and self.grid[int(np.around(self.carsPos[carID, 0])) + 2 * self.carHeightGrid, int(np.around(self.carsPos[carID, 1]))] > 0:
+			self.carsSpeedFrac[carID] = self.grid[int(np.around(self.carsPos[carID, 0])) + 2 * self.carHeightGrid, int(np.around(self.carsPos[carID, 1]))] / self.carsTopSpeed[carID]
 
 	def moveCar(self, carID):
 		self.grid[max(0, int(np.around(self.carsPos[carID, 0]))): min(int(np.around(self.carsPos[carID, 0])) + self.carHeightGrid, self.grid.shape[0]), int(np.around(self.carsPos[carID, 1]))] = 0.0
 
-		diff = [(self.carsTopSpeed[carID] * self.carsSpeedFrac[carID]) - 
-										(self.EgoCarTopSpeed * self.EgoCarSpeedFrac)] / self.speedScaling
+		diff = ((self.carsTopSpeed[carID] * self.carsSpeedFrac[carID]) - 
+										(self.EgoCarTopSpeed * self.EgoCarSpeedFrac)) / self.speedScaling
 		self.carsPos[carID,0] += diff
 
 		# Move out of bounds
