@@ -4,7 +4,8 @@ class TrafficSimulator(object):
 	def __init__(self, numCars = 20, numLanes = 7,
 				canvasHeight = 700, canvasWidth = 140, 
 				gridHeight = 10, carHeightGird = 4,
-				stepTime = 1, decisionFreq = 5):
+				stepTime = 1, decisionFreq = 5,
+				speedScaling = 15):
 		self.canvasSize = [canvasHeight, canvasWidth]
 		self.numLanes = numLanes
 		self.stepTime = stepTime
@@ -12,7 +13,8 @@ class TrafficSimulator(object):
 		self.grid = np.zeros((canvasHeight // gridHeight, numLanes))
 		self.decisionFreq = decisionFreq
 		self.numCars = numCars
-		
+		self.speedScaling = speedScaling
+
 		self.initEgoCar()
 		self.initCars()
 
@@ -114,6 +116,31 @@ class TrafficSimulator(object):
 			self.carsSpeedFrac[carID] = self.grid[np.around(self.EgoCarPos[0]) + 2 * self.carHeightGrid] / self.carsTopSpeed[carID]
 
 	def moveCar(self, carID):
+		self.grid[max(0, np.around(self.carsPos[carID, 0])): min(np.around(self.carsPos[carID, 0]) + self.carHeightGrid, self.grid.shape[0]), np.around(self.carsPos[carID, 1])] = 0.0
+
+		diff = [(self.carsTopSpeed[carID] * self.carsSpeedFrac[carID]) - 
+										(self.EgoCarTopSpeed * self.EgoCarSpeedFrac)] / self.speedScaling
+		self.carsPos[carID,0] += diff
+
+		# Move out of bounds
+		if np.around(self.carsPos[carID, 0]) >= self.grid.shape[0]):
+			lane = np.random.randint(self.grid.shape[1])
+			gridHeight = -3
+			# Need to ensure that cars on the same lane are apart by at least 4 grids to avoid collision
+			while (np.sum(self.grid[0:5, lane]) != 0):
+				lane = np.random.randint(self.grid.shape[1])
+			self.carsPos[carID, 0] = gridHeight
+			self.carsPos[carID, 1] = lane
+		elif np.around(self.carsPos[carID, 0]) < -3.0:
+			lane = np.random.randint(self.grid.shape[1])
+			gridHeight = self.grid.shape[0] - 1
+			# Need to ensure that cars on the same lane are apart by at least 4 grids to avoid collision
+			while (np.sum(self.grid[(self.grid.shape[0] - 4):self.grid.shape[0], lane]) != 0):
+				lane = np.random.randint(self.grid.shape[1])
+			self.carsPos[carID, 0] = gridHeight
+			self.carsPos[carID, 1] = lane
+
+		self.grid[max(0, np.around(self.carsPos[carID, 0])): min(np.around(self.carsPos[carID, 0]) + self.carHeightGrid, self.grid.shape[0]), np.around(self.carsPos[carID, 1])] = self.carsTopSpeed[carID] * self.carsSpeedFrac[carID]
 
 		return True
 
@@ -124,11 +151,11 @@ class TrafficSimulator(object):
 		# Check if already at the leftmost/rightmost lane and if it is safe to change lane 
 		if self.EgoCarPos[1] + direction < 0 or \
 					self.EgoCarPos[1] + direction >= self.numLanes or \
-					np.sum(self.grid[(self.EgoCarPos[0] - self.carHeightGrid):(self.EgoCarPos[0] + 2 * self.carHeightGrid), self.EgoCarPos[1] + direction]) != 0:
+					np.sum(self.grid[(np.around(self.EgoCarPos[0]) - self.carHeightGrid):(np.around(self.EgoCarPos[0]) + 2 * self.carHeightGrid), np.around(self.EgoCarPos[1]) + direction]) != 0:
 			return False
 		else:
-			self.grid[self.EgoCarPos[0] : (self.EgoCarPos[0] + self.carHeightGrid), self.EgoCarPos[1] + direction] = self.EgoCarTopSpeed * self.EgoCarSpeedFrac
-			self.grid[self.EgoCarPos[0] : (self.EgoCarPos[0] + self.carHeightGrid), self.EgoCarPos[1]] = 0.0
+			self.grid[np.around(self.EgoCarPos[0]) : (np.around(self.EgoCarPos[0]) + self.carHeightGrid), np.around(self.EgoCarPos[1]) + direction] = self.EgoCarTopSpeed * self.EgoCarSpeedFrac
+			self.grid[np.around(self.EgoCarPos[0]) : (np.around(self.EgoCarPos[0]) + self.carHeightGrid), np.around(self.EgoCarPos[1])] = 0.0
 			self.EgoCarPos[1] += direction
 			return True
 
@@ -137,11 +164,11 @@ class TrafficSimulator(object):
 		# Check if already at the leftmost/rightmost lane and if it is safe to change lane 
 		if self.carsPos[carID, 1] + direction < 0 or \
 					self.carsPos[carID, 1] + direction >= self.numLanes or \
-					np.sum(self.grid[max(0, self.carsPos[carID, 0] - self.carHeightGrid):min(self.carsPos[carID, 0] + 2 * self.carHeightGrid, self.grid.shape[0]), self.carsPos[carID, 1] + direction]) != 0:
+					np.sum(self.grid[max(0, np.around(self.carsPos[carID, 0]) - self.carHeightGrid):min(np.around(self.carsPos[carID, 0]) + 2 * self.carHeightGrid, self.grid.shape[0]), np.around(self.carsPos[carID, 1]) + direction]) != 0:
 			return False
 		else:
-			self.grid[max(0, self.carsPos[carID, 0]): min(self.carsPos[carID, 0] + self.carHeightGrid, self.grid.shape[0]), self.carsPos[carID, 1] + direction] = self.carsTopSpeed[carID] * self.carsSpeedFrac[carID]
-			self.grid[max(0, self.carsPos[carID, 0]): min(self.carsPos[carID, 0] + self.carHeightGrid, self.grid.shape[0]), self.carsPos[carID, 1]] = 0.0
+			self.grid[max(0, np.around(self.carsPos[carID, 0])): min(np.around(self.carsPos[carID, 0]) + self.carHeightGrid, self.grid.shape[0]), np.around(self.carsPos[carID, 1]) + direction] = self.carsTopSpeed[carID] * self.carsSpeedFrac[carID]
+			self.grid[max(0, np.around(self.carsPos[carID, 0])): min(np.around(self.carsPos[carID, 0]) + self.carHeightGrid, self.grid.shape[0]), np.around(self.carsPos[carID, 1])] = 0.0
 			self.carsPos[carID, 1] += direction
 			return True
 
