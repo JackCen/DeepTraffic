@@ -28,8 +28,8 @@ class TrafficSimulator(object):
 		self.grid[int(np.around(self.EgoCarPos[0])) : (int(np.around(self.EgoCarPos[0])) + self.carHeightGrid), \
 				int(np.around(self.EgoCarPos[1]))] = self.EgoCarTopSpeed * self.EgoCarSpeedFrac
 		# Tracking history for potential reward function calculation
-		self.actionHistory = []
-		self.speedHistory = []
+		self.actionHistory = [0] * 5
+		self.speedHistory = [self.EgoCarTopSpeed] * 5
 
 	# Initialize other 20 cars parameters
 	def initCars(self):
@@ -103,6 +103,8 @@ class TrafficSimulator(object):
 				self.checkCollisionCar(carID) #Check for collision. If dangerous, will change speed
 
 			# Now update the grid and location of all cars
+			self.grid[int(np.around(self.EgoCarPos[0])) : (int(np.around(self.EgoCarPos[0])) + self.carHeightGrid), \
+				int(np.around(self.EgoCarPos[1]))] = self.EgoCarTopSpeed * self.EgoCarSpeedFrac
 			for i in range(self.numCars):
 				carID = order[i]
 				self.moveCar(carID)
@@ -199,8 +201,24 @@ class TrafficSimulator(object):
 
 	# Placeholder reward function
 	def reward(self):
-		return 1.0
+		return np.mean(self.speedHistory)
 
 	# Print the grid as temp graphic outputs
 	def print_grid(self):
 		print(np.flip(self.grid, axis=0))
+
+	# Return state of the simulator
+	def state(self):
+		#self.EgoCarTopSpeed * self.EgoCarSpeedFrac, self.EgoCarPos, self.actionHistory, 
+		#self.speedHistory, self.grid, self.carsTopSpeed * self.carsSpeedFrac, self.carsPos
+		toReturn = np.zeros(1 + 2 + 5 + 5 + 7 * 70 + 
+							self.numCars + 2 * self.numCars)
+		toReturn[0] = self.EgoCarTopSpeed * self.EgoCarSpeedFrac
+		toReturn[1] = self.EgoCarPos[0]
+		toReturn[2] = self.EgoCarPos[1]
+		toReturn[3:8] = self.actionHistory
+		toReturn[9:14] = self.speedHistory
+		toReturn[15: (15 + 490)] = np.ndarray.flatten(self.grid)
+		toReturn[505: 535] = self.carsTopSpeed * self.carsSpeedFrac
+		toReturn[535: 575] = np.ndarray.flatten(self.carsPos)
+		return toReturn
