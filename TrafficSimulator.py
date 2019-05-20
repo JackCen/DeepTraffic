@@ -24,8 +24,8 @@ class TrafficSimulator(object):
 		self.EgoCarTopSpeed = 80.0
 		self.EgoCarSpeedFrac = 1.0
 		self.EgoCarPos = [18.0, 3]
-		self.grid[np.around(self.EgoCarPos[0]) : (np.around(self.EgoCarPos[0]) + self.carHeightGrid), \
-				np.around(self.EgoCarPos[1])] = self.EgoCarTopSpeed * self.EgoCarSpeedFrac
+		self.grid[int(np.around(self.EgoCarPos[0])) : (int(np.around(self.EgoCarPos[0])) + self.carHeightGrid), \
+				int(np.around(self.EgoCarPos[1]))] = self.EgoCarTopSpeed * self.EgoCarSpeedFrac
 		self.actionHistory = []
 		self.speedHistory = []
 
@@ -46,8 +46,8 @@ class TrafficSimulator(object):
 				lane = np.random.randint(self.grid.shape[1])
 			self.carsPos[i, 0] = gridHeight
 			self.carsPos[i, 1] = lane
-			self.grid[np.around(self.carsPos[i, 0]) : (np.around(self.carsPos[i, 0]) + self.carHeightGrid), 
-						np.around(self.carsPos[i, 1])] = self.carsTopSpeed[i] * self.carsSpeedFrac[i]
+			self.grid[int(np.around(self.carsPos[i, 0])) : (int(np.around(self.carsPos[i, 0])) + self.carHeightGrid), 
+						int(np.around(self.carsPos[i, 1]))] = self.carsTopSpeed[i] * self.carsSpeedFrac[i]
 
 
 
@@ -94,36 +94,36 @@ class TrafficSimulator(object):
 				self.moveCar(carID)
 
 			self.speedHistory.append(self.EgoCarTopSpeed * self.EgoCarSpeedFrac)
-				if len(self.speedHistory) >= 5: self.speedHistory.pop(0)
+			if len(self.speedHistory) >= 5: self.speedHistory.pop(0)
 
 		return self.reward()
 
 
 	def checkCollisionEgo(self):
-		frontCarSpeed = np.max(self.grid[np.around(self.EgoCarPos[0]) + self.carHeightGrid : (np.around(self.EgoCarPos[0]) + 2 * self.carHeightGrid), 
-										np.around(self.EgoCarPos[1])])
+		frontCarSpeed = np.max(self.grid[int(np.around(self.EgoCarPos[0])) + self.carHeightGrid : (int(np.around(self.EgoCarPos[0])) + 2 * self.carHeightGrid), 
+										int(np.around(self.EgoCarPos[1]))])
 		if frontCarSpeed > 0:
 			self.EgoCarSpeedFrac = frontCarSpeed / 2.0 / self.EgoCarTopSpeed
-		elif self.grid[np.around(self.EgoCarPos[0]) + 2 * self.carHeightGrid] > 0:
-			self.EgoCarSpeedFrac = self.grid[np.around(self.EgoCarPos[0]) + 2 * self.carHeightGrid] / self.EgoCarTopSpeed
+		elif self.grid[int(np.around(self.EgoCarPos[0])) + 2 * self.carHeightGrid] > 0:
+			self.EgoCarSpeedFrac = self.grid[int(np.around(self.EgoCarPos[0])) + 2 * self.carHeightGrid] / self.EgoCarTopSpeed
 
 	def checkCollisionCar(self, carID):
-		frontCarSpeed = np.max(self.grid[np.around(self.carsPos[carID, 0]) + self.carHeightGrid : (np.around(self.carsPos[carID, 0]) + 2 * self.carHeightGrid), 
-										np.around(self.carsPos[carID, 1])])
+		frontCarSpeed = np.max(self.grid[int(np.around(self.carsPos[carID, 0])) + self.carHeightGrid : (int(np.around(self.carsPos[carID, 0])) + 2 * self.carHeightGrid), 
+										int(np.around(self.carsPos[carID, 1]))])
 		if frontCarSpeed > 0:
 			self.carsSpeedFrac[carID] = frontCarSpeed / 2.0 / self.carsTopSpeed[carID]
-		elif self.grid[np.around(self.carsPos[carID, 0]) + 2 * self.carHeightGrid] > 0:
-			self.carsSpeedFrac[carID] = self.grid[np.around(self.EgoCarPos[0]) + 2 * self.carHeightGrid] / self.carsTopSpeed[carID]
+		elif self.grid[int(np.around(self.carsPos[carID, 0])) + 2 * self.carHeightGrid] > 0:
+			self.carsSpeedFrac[carID] = self.grid[int(np.around(self.EgoCarPos[0])) + 2 * self.carHeightGrid] / self.carsTopSpeed[carID]
 
 	def moveCar(self, carID):
-		self.grid[max(0, np.around(self.carsPos[carID, 0])): min(np.around(self.carsPos[carID, 0]) + self.carHeightGrid, self.grid.shape[0]), np.around(self.carsPos[carID, 1])] = 0.0
+		self.grid[max(0, int(np.around(self.carsPos[carID, 0]))): min(int(np.around(self.carsPos[carID, 0])) + self.carHeightGrid, self.grid.shape[0]), int(np.around(self.carsPos[carID, 1]))] = 0.0
 
 		diff = [(self.carsTopSpeed[carID] * self.carsSpeedFrac[carID]) - 
 										(self.EgoCarTopSpeed * self.EgoCarSpeedFrac)] / self.speedScaling
 		self.carsPos[carID,0] += diff
 
 		# Move out of bounds
-		if np.around(self.carsPos[carID, 0]) >= self.grid.shape[0]):
+		if int(np.around(self.carsPos[carID, 0])) >= self.grid.shape[0]:
 			lane = np.random.randint(self.grid.shape[1])
 			gridHeight = -3
 			# Need to ensure that cars on the same lane are apart by at least 4 grids to avoid collision
@@ -131,7 +131,7 @@ class TrafficSimulator(object):
 				lane = np.random.randint(self.grid.shape[1])
 			self.carsPos[carID, 0] = gridHeight
 			self.carsPos[carID, 1] = lane
-		elif np.around(self.carsPos[carID, 0]) < -3.0:
+		elif int(np.around(self.carsPos[carID, 0])) < -3.0:
 			lane = np.random.randint(self.grid.shape[1])
 			gridHeight = self.grid.shape[0] - 1
 			# Need to ensure that cars on the same lane are apart by at least 4 grids to avoid collision
@@ -140,7 +140,7 @@ class TrafficSimulator(object):
 			self.carsPos[carID, 0] = gridHeight
 			self.carsPos[carID, 1] = lane
 
-		self.grid[max(0, np.around(self.carsPos[carID, 0])): min(np.around(self.carsPos[carID, 0]) + self.carHeightGrid, self.grid.shape[0]), np.around(self.carsPos[carID, 1])] = self.carsTopSpeed[carID] * self.carsSpeedFrac[carID]
+		self.grid[max(0, int(np.around(self.carsPos[carID, 0]))): min(int(np.around(self.carsPos[carID, 0])) + self.carHeightGrid, self.grid.shape[0]), int(np.around(self.carsPos[carID, 1]))] = self.carsTopSpeed[carID] * self.carsSpeedFrac[carID]
 
 		return True
 
@@ -151,11 +151,11 @@ class TrafficSimulator(object):
 		# Check if already at the leftmost/rightmost lane and if it is safe to change lane 
 		if self.EgoCarPos[1] + direction < 0 or \
 					self.EgoCarPos[1] + direction >= self.numLanes or \
-					np.sum(self.grid[(np.around(self.EgoCarPos[0]) - self.carHeightGrid):(np.around(self.EgoCarPos[0]) + 2 * self.carHeightGrid), np.around(self.EgoCarPos[1]) + direction]) != 0:
+					np.sum(self.grid[(int(np.around(self.EgoCarPos[0])) - self.carHeightGrid):(int(np.around(self.EgoCarPos[0])) + 2 * self.carHeightGrid), int(np.around(self.EgoCarPos[1])) + direction]) != 0:
 			return False
 		else:
-			self.grid[np.around(self.EgoCarPos[0]) : (np.around(self.EgoCarPos[0]) + self.carHeightGrid), np.around(self.EgoCarPos[1]) + direction] = self.EgoCarTopSpeed * self.EgoCarSpeedFrac
-			self.grid[np.around(self.EgoCarPos[0]) : (np.around(self.EgoCarPos[0]) + self.carHeightGrid), np.around(self.EgoCarPos[1])] = 0.0
+			self.grid[int(np.around(self.EgoCarPos[0])) : (int(np.around(self.EgoCarPos[0])) + self.carHeightGrid), int(np.around(self.EgoCarPos[1])) + direction] = self.EgoCarTopSpeed * self.EgoCarSpeedFrac
+			self.grid[int(np.around(self.EgoCarPos[0])) : (int(np.around(self.EgoCarPos[0])) + self.carHeightGrid), int(np.around(self.EgoCarPos[1]))] = 0.0
 			self.EgoCarPos[1] += direction
 			return True
 
@@ -164,15 +164,15 @@ class TrafficSimulator(object):
 		# Check if already at the leftmost/rightmost lane and if it is safe to change lane 
 		if self.carsPos[carID, 1] + direction < 0 or \
 					self.carsPos[carID, 1] + direction >= self.numLanes or \
-					np.sum(self.grid[max(0, np.around(self.carsPos[carID, 0]) - self.carHeightGrid):min(np.around(self.carsPos[carID, 0]) + 2 * self.carHeightGrid, self.grid.shape[0]), np.around(self.carsPos[carID, 1]) + direction]) != 0:
+					np.sum(self.grid[max(0, int(np.around(self.carsPos[carID, 0])) - self.carHeightGrid):min(int(np.around(self.carsPos[carID, 0])) + 2 * self.carHeightGrid, self.grid.shape[0]), int(np.around(self.carsPos[carID, 1])) + direction]) != 0:
 			return False
 		else:
-			self.grid[max(0, np.around(self.carsPos[carID, 0])): min(np.around(self.carsPos[carID, 0]) + self.carHeightGrid, self.grid.shape[0]), np.around(self.carsPos[carID, 1]) + direction] = self.carsTopSpeed[carID] * self.carsSpeedFrac[carID]
-			self.grid[max(0, np.around(self.carsPos[carID, 0])): min(np.around(self.carsPos[carID, 0]) + self.carHeightGrid, self.grid.shape[0]), np.around(self.carsPos[carID, 1])] = 0.0
+			self.grid[max(0, int(np.around(self.carsPos[carID, 0]))): min(int(np.around(self.carsPos[carID, 0])) + self.carHeightGrid, self.grid.shape[0]), int(np.around(self.carsPos[carID, 1])) + direction] = self.carsTopSpeed[carID] * self.carsSpeedFrac[carID]
+			self.grid[max(0, int(np.around(self.carsPos[carID, 0]))): min(int(np.around(self.carsPos[carID, 0])) + self.carHeightGrid, self.grid.shape[0]), int(np.around(self.carsPos[carID, 1]))] = 0.0
 			self.carsPos[carID, 1] += direction
 			return True
 
-	def self.reward(self):
+	def reward(self):
 		return 1.0
 
 	def print_grid(self):
