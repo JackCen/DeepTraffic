@@ -86,7 +86,7 @@ class TrafficSimulator(object):
 					if action == 3:
 						self.EgoCarSpeedFrac = min(1.00, self.EgoCarSpeedFrac + 0.01)
 					elif action == 4:
-						self.EgoCarSpeedFrac = max(0.01, self.EgoCarSpeedFrac - 0.01)
+						self.EgoCarSpeedFrac = max(0.50, self.EgoCarSpeedFrac - 0.01)
 					egoToMove = False
 					
 					self.checkCollisionEgo() #Check for collision. If dangerous, will change speed
@@ -99,7 +99,7 @@ class TrafficSimulator(object):
 				elif carAction[carID] == 3:
 					self.carsSpeedFrac[carID] = min(1.00, self.carsSpeedFrac[carID] + 0.01)
 				elif carAction[carID] == 4:
-					self.carsSpeedFrac[carID] = max(0.01, self.carsSpeedFrac[carID] - 0.01)
+					self.carsSpeedFrac[carID] = max(0.50, self.carsSpeedFrac[carID] - 0.01)
 				self.checkCollisionCar(carID) #Check for collision. If dangerous, will change speed
 
 			# Now update the grid and location of all cars
@@ -131,7 +131,8 @@ class TrafficSimulator(object):
 
 	# Same check collision for other cars
 	def checkCollisionCar(self, carID):
-		if int(np.around(self.carsPos[carID, 0])) + self.carHeightGrid >= self.grid.shape[0]: return
+		if int(np.around(self.carsPos[carID, 0])) + self.carHeightGrid >= self.grid.shape[0] or \
+			int(np.around(self.carsPos[carID, 0])) + self.carHeightGrid < 0: return
 		frontCarSpeed = np.max(self.grid[int(np.around(self.carsPos[carID, 0])) + self.carHeightGrid : min((int(np.around(self.carsPos[carID, 0])) + 2 * self.carHeightGrid), self.grid.shape[0]), 
 										int(np.around(self.carsPos[carID, 1]))])
 		if frontCarSpeed > 0:
@@ -151,18 +152,18 @@ class TrafficSimulator(object):
 		# Move out of bounds, top -> bottom and bottom -> top
 		if int(np.around(self.carsPos[carID, 0])) >= self.grid.shape[0]:
 			lane = np.random.randint(self.grid.shape[1])
-			gridHeight = -3
-			# Need to ensure that cars on the same lane are apart by at least 4 grids to avoid collision
-			while (np.sum(self.grid[0:5, lane]) != 0):
-				lane = np.random.randint(self.grid.shape[1])
+			if self.carsPos[self.carsPos[:,1] == lane, 0].shape[0] == 0:
+				gridHeight = -3
+			else:
+				gridHeight = min(-3, np.min(self.carsPos[self.carsPos[:,1] == lane, 0]) - 2 * self.carHeightGrid)
 			self.carsPos[carID, 0] = gridHeight
 			self.carsPos[carID, 1] = lane
 		elif int(np.around(self.carsPos[carID, 0])) < -3.0:
 			lane = np.random.randint(self.grid.shape[1])
-			gridHeight = self.grid.shape[0] - 1
-			# Need to ensure that cars on the same lane are apart by at least 4 grids to avoid collision
-			while (np.sum(self.grid[(self.grid.shape[0] - 4):self.grid.shape[0], lane]) != 0):
-				lane = np.random.randint(self.grid.shape[1])
+			if self.carsPos[self.carsPos[:,1] == lane, 0].shape[0] == 0:
+				gridHeight = self.grid.shape[0] - 1
+			else:
+				gridHeight = max(self.grid.shape[0] - 1, np.max(self.carsPos[self.carsPos[:,1] == lane, 0]) + 2 * self.carHeightGrid)
 			self.carsPos[carID, 0] = gridHeight
 			self.carsPos[carID, 1] = lane
 
