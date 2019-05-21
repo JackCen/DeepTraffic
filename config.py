@@ -24,6 +24,7 @@ class Config:
 		self.batch_size = 32
 
 		self.T = 100
+		self.nBufferSample = 100
 
 		self.hidden_size= 10
 
