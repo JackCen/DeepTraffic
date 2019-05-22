@@ -19,7 +19,7 @@ class model(object):
 			self._config.lr_end,
 			self._config.lr_nsteps)
 		self._sim = TrafficSimulator(config)
-		self._bf = ReplayBuffer(1000000, config)
+		self._bf = ReplayBuffer(10000, config)
 
 		self._action_fn = self.get_action_fn()
 
