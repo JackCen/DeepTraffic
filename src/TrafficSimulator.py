@@ -62,7 +62,7 @@ class TrafficSimulator(object):
 	def progress(self, action):
 		# Valid actions: [0: stay the same; 1: left; 2: right; 3: accelerate; 4: decelerate]
 		self.actionHistory.append(action)
-		if len(self.actionHistory) >= self.actionSpeedHistory: self.actionHistory.pop(0) # Potentially only keep a short history
+		if len(self.actionHistory) > self.actionSpeedHistory: self.actionHistory.pop(0) # Potentially only keep a short history
 
 		# Assume all other cars follow a random action
 		carAction = np.random.randint(0, 5, self.numCars)
@@ -117,7 +117,7 @@ class TrafficSimulator(object):
 
 			# Append speed history for reward
 			self.speedHistory.append(self.EgoCarTopSpeed * self.EgoCarSpeedFrac)
-			if len(self.speedHistory) >= self.actionSpeedHistory: self.speedHistory.pop(0)
+			if len(self.speedHistory) > self.actionSpeedHistory: self.speedHistory.pop(0)
 
 		return self.reward()
 
