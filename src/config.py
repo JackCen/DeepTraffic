@@ -2,10 +2,10 @@ class Config:
 	def __init__(self):
 		self.mode = 'train'
 
-		self.nsteps_train = 1000
+		self.nsteps_train = 100000
 		self.print_freq = 50
 		self.target_update_freq = 1000
-		self.saving_freq = 250
+		self.saving_freq = 25000
 		self.simulation_freq = 1000
 		self.model_output = '../output'
 
@@ -25,7 +25,7 @@ class Config:
 
 		self.T = 100
 		self.N = 100
-		self.nBufferSample = 5
+		self.nBufferSample = 100
 
 		self.hidden_size= 10
 		self.numActions = 5
