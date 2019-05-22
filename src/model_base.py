@@ -60,8 +60,26 @@ class model(object):
 		return tmp_state
 
 	def simulate_an_episode(self, T, action_fn):
+		rewards = []
+		states = []
+		actions = []
+
+		self._sim.reset()
+		cum_reward = 0
 
 
+		for t in range(T):
+			state = self._sim.state()
+			states.append(state)
+
+			state_input = self.pad_state(states[-self._config.state_history:], self._config.state_history)
+			action = action_fn(state_input)
+			actions.append(action)
+
+			reward = self._sim.progress(action)
+			rewards.append(reward)
+
+		return (states, rewards, actions)
 
 
 	def sampling_buffer(self):

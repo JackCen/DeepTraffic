@@ -7,7 +7,7 @@ class Config:
 		self.target_update_freq = 1000
 		self.saving_freq = 250
 		self.simulation_freq = 1000
-		self.model_output = './output'
+		self.model_output = '../output'
 
 		self.eps_begin = 1.0
 		self.eps_end = 0.1
@@ -27,6 +27,7 @@ class Config:
 		self.nBufferSample = 100
 
 		self.hidden_size= 10
+		self.numActions = 5
 
 		self.state_shape = [100, 1]
 		self.state_history = 1

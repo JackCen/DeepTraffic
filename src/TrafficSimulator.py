@@ -6,16 +6,19 @@ class TrafficSimulator(object):
 				gridHeight = 10, carHeightGird = 4,
 				decisionFreq = 5, speedScaling = 15):
 		self.canvasSize = [canvasHeight, canvasWidth]
+		self.gridHeight = gridHeight
 		self.numLanes = numLanes
 		self.carHeightGrid = carHeightGird #num of verticaal grids a car occupies
-		self.grid = np.zeros((canvasHeight // gridHeight, numLanes)) # grid consists of the speed of occupied car
 		self.decisionFreq = decisionFreq #how many steps to simulate between two actions
 		self.numCars = numCars #other cars
 		self.speedScaling = speedScaling #scale mph to grids
 
+		self.reset()
+
+	def reset(self):
+		self.grid = np.zeros((self.canvasSize[0] // self.gridHeight, self.numLanes)) # grid consists of the speed of occupied car
 		self.initEgoCar()
 		self.initCars()
-
 
 	# Initialize Ego Car parameters
 	def initEgoCar(self):
