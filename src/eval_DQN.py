@@ -18,7 +18,6 @@ def evaluate_policy(model, T = 100, N = 100):
 	for k in range(N):
 		print ('I am at the %d episode'%(k))
 		states, reward, actions = model.simulate_an_episode(T, model.get_best_action_fn())
-		print (reward)
 		rewards.append(np.mean(reward))
 	return rewards
 

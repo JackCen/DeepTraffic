@@ -138,7 +138,7 @@ class DQN(model):
 		return q
 
 	def get_best_action_fn(self):
-		print('get best action fn')
+		# print('get best action fn')
 		return self.get_best_action
 
 if __name__ == '__main__':
