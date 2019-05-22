@@ -32,14 +32,14 @@ class DQN(model):
 		with tf.variable_scope(scope, reuse=reuse):
 			l1 = layers.fully_connected(state, self._config.hidden_size, activation_fn=None)
 			l1 = layers.batch_norm(l1)
-        	l1 = tf.nn.relu(l1)
-        	l1 = tf.nn.dropout(l1, self._config.dropout)
+			l1 = tf.nn.relu(l1)
+			l1 = tf.nn.dropout(l1, self._config.dropout)
 
-        	l2 = layers.fully_connected(l1, self._config.hidden_size, activation_fn=None)
+			l2 = layers.fully_connected(l1, self._config.hidden_size, activation_fn=None)
 			l2 = layers.batch_norm(l2)
-        	l2 = tf.nn.relu(l2)
-        	l2 = tf.nn.dropout(l2, self._config.dropout)
-        	
+			l2 = tf.nn.relu(l2)
+			l2 = tf.nn.dropout(l2, self._config.dropout)
+			
 			out = layers.fully_connected(l2, num_actions, activation_fn=None)
 		return out
 
