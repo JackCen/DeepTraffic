@@ -7,7 +7,7 @@ class Config:
 		self.target_update_freq = 1000
 		self.saving_freq = 2500
 		self.simulation_freq = 1000
-		self.model_output = '../output'
+		self.model_output = '../outputs'
 
 		self.eps_begin = 1.0
 		self.eps_end = 0.1
