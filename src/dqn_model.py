@@ -30,7 +30,8 @@ class DQN(model):
 	def get_q_values_op(self, state, scope, reuse=False):
 		num_actions = self._config.numActions
 		with tf.variable_scope(scope, reuse=reuse):
-			l1 = layers.fully_connected(state, self._config.hidden_size, activation_fn=None)
+			state_flattened = layers.flatten(state)
+			l1 = layers.fully_connected(state_flattened, self._config.hidden_size, activation_fn=None)
 			l1 = layers.batch_norm(l1)
 			l1 = tf.nn.relu(l1)
 			l1 = tf.nn.dropout(l1, self._config.dropout)
