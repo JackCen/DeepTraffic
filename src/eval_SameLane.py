@@ -1,7 +1,10 @@
 import numpy as np
 from TrafficSimulator import TrafficSimulator
+from config import Config
 
-#Evaluate 100 times on 100 actions
+def get_best_action_fn():
+	return 3
+	
 def evaluate_policy(T = 100, N = 100):
 	rewards = []
 	for k in range(N):
@@ -13,12 +16,14 @@ def evaluate_policy(T = 100, N = 100):
 def simulate_reward(simulator, T):
 	r = np.zeros(T)
 	for t in range(T):
-		r[t] = simulator.progress(3)
+		r[t] = simulator.progress(get_best_action_fn())
 		print(t, r[t])
-	return np.mean(r)
+	return r
 
+def main():
+	config = Config()
+	rewards = evaluate_policy(config.T, config.N)
+	print(np.mean(rewards))
 
-results = evaluate_policy()
-
-print(results)
-print(np.mean(results))
+if __name__ == '__main__':
+	main()
