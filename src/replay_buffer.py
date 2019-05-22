@@ -11,7 +11,7 @@ class ReplayBuffer(object):
 		self.actions = np.empty([self.size], dtype=np.int32)
 		self.rewards = np.empty([self.size], dtype=np.float32)
 
-	def store(self, states, actions, rewards, done_mask):
+	def store(self, states, actions, rewards):
 		for idx in range(len(actions)):
 			self.last_idx += 1
 			if self.last_idx == self.size:

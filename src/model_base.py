@@ -57,7 +57,7 @@ class model(object):
 		tmp_states = states
 		tmp_state = np.concatenate([np.expand_dims(state, -1) for state in tmp_states], axis=-1)
 		tmp_state = np.pad(tmp_state, ((0,0),(state_history-tmp_state.shape[-1],0)), 'constant', constant_values=0)
-		return tmp_state
+		return [tmp_state]
 
 	def simulate_an_episode(self, T, action_fn):
 		rewards = []
