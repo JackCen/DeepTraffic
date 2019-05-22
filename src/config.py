@@ -37,7 +37,7 @@ class Config:
 		self.gridHeight = 10
 		self.carHeightGrid = 4
 		self.decisionFreq = 5
-		self.speedScaling = 50
+		self.speedScaling = 15
 		self.actionSpeedHistory = 5
 		self.egoTopSpeed = 80.0
 		self.carTopSpeed = 65.0
