@@ -131,8 +131,7 @@ class DQN(model):
 	def get_best_action(self, state):
 		q = self.get_q_values(state)[0]
 		action = np.argmax(q)
-		print("Test")
-		print(self.get_q_values(state))
+		print("Q value and best action:")
 		print(q)
 		print(action)
 
