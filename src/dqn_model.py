@@ -135,14 +135,18 @@ class DQN(model):
 		print(q)
 		print(action)
 
-		return action
+		q_value = q[action]
+		return (action, q_value)
 
 	def get_q_values(self, state):
 		q, = self.sess.run([self.q], feed_dict={self.state:state})
 		return q
 
 	def get_best_action_fn(self):
-		return self.get_best_action
+		def action_fn(state):
+			action = self.get_best_action(state)[0]
+			return action
+		return action_fn
 
 if __name__ == '__main__':
 	config = Config()
