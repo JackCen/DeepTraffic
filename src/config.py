@@ -45,6 +45,6 @@ class Config:
 		self.minSpeedFrac = 0.5
 		self.egoCarPos = 18.0
 		self.state_length = 1 + 2 + 2 * self.actionSpeedHistory + \
-								self.numLanes * self.canvasHeight // self.gridHeight + \
+								#self.numLanes * self.canvasHeight // self.gridHeight + \
 								3 * self.numCars
 		self.state_history = 1
