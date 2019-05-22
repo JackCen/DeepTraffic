@@ -84,6 +84,7 @@ class model(object):
 
 	def sampling_buffer(self):
 		for s in range(self._config.nBufferSample):
-			print("Sample buffer: ", s)
+			if s % 5 == 0:
+				print("Sample buffer: ", s)
 			states, rewards, actions = self.simulate_an_episode(self._config.T, self._action_fn)
 			self._bf.store(states, actions, rewards)
