@@ -7,7 +7,7 @@ class ReplayBuffer(object):
 		self.last_idx = -1
 		self.history_size = 0
 
-		self.states_stack = np.empty([self.size]+[self.state_length]+[self.config.state_history+1], dtype=np.float32)
+		self.states_stack = np.empty([self.size]+[self.config.state_length]+[self.config.state_history+1], dtype=np.float32)
 		self.actions = np.empty([self.size], dtype=np.int32)
 		self.rewards = np.empty([self.size], dtype=np.float32)
 
