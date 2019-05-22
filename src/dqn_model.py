@@ -84,7 +84,9 @@ class DQN(model):
 		self.sess.run(self.update_target_op)
 
 	def train(self):
+		print("Start to sample buffer")
 		self.sampling_buffer()
+		print("Finished sample buffer")
 		t = 0
 		total_loss = 0
 		while t < self._config.nsteps_train:
