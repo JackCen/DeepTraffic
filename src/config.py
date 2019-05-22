@@ -25,7 +25,7 @@ class Config:
 
 		self.T = 100
 		self.N = 100
-		self.nBufferSample = 100
+		self.nBufferSample = 5
 
 		self.hidden_size= 10
 		self.numActions = 5

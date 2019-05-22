@@ -34,13 +34,14 @@ class DQN(model):
 			l1 = layers.batch_norm(l1)
 			l1 = tf.nn.relu(l1)
 			l1 = tf.nn.dropout(l1, self._config.dropout)
-
+			print(tf.shape(l1))
 			l2 = layers.fully_connected(l1, self._config.hidden_size, activation_fn=None)
 			l2 = layers.batch_norm(l2)
 			l2 = tf.nn.relu(l2)
 			l2 = tf.nn.dropout(l2, self._config.dropout)
-			
+			print(tf.shape(l2))
 			out = layers.fully_connected(l2, num_actions, activation_fn=None)
+			print(tf.shape(out))
 		return out
 
 	def add_update_target_op(self, q_scope, target_q_scope):
