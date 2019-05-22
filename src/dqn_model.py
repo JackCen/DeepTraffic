@@ -130,9 +130,8 @@ class DQN(model):
 
 	def get_best_action(self, state):
 		q = self.get_q_values(state)[0]
-		action = np.argmax(q[:-1])
-		q_value = q[action]
-		return (action, q_value)
+		action = np.argmax(q)
+		return action
 
 	def get_q_values(self, state):
 		q, = self.sess.run([self.q], feed_dict={self.state:state})
