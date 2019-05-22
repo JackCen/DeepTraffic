@@ -27,7 +27,7 @@ class Config:
 		self.N = 100
 		self.nBufferSample = 100
 
-		self.hidden_size= 10
+		self.hidden_size = [128, 64, 32]
 		self.numActions = 5
 
 		self.numCars = 20

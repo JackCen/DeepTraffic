@@ -31,18 +31,22 @@ class DQN(model):
 		num_actions = self._config.numActions
 		with tf.variable_scope(scope, reuse=reuse):
 			state_flattened = layers.flatten(state)
-			l1 = layers.fully_connected(state_flattened, self._config.hidden_size, activation_fn=None)
+			l1 = layers.fully_connected(state_flattened, self._config.hidden_size[0], activation_fn=None)
 			l1 = layers.batch_norm(l1)
 			l1 = tf.nn.relu(l1)
 			l1 = tf.nn.dropout(l1, self._config.dropout)
-			print(tf.shape(l1))
-			l2 = layers.fully_connected(l1, self._config.hidden_size, activation_fn=None)
+			
+			l2 = layers.fully_connected(l1, self._config.hidden_size[1], activation_fn=None)
 			l2 = layers.batch_norm(l2)
 			l2 = tf.nn.relu(l2)
 			l2 = tf.nn.dropout(l2, self._config.dropout)
-			print(tf.shape(l2))
-			out = layers.fully_connected(l2, num_actions, activation_fn=None)
-			print(tf.shape(out))
+
+			l3 = layers.fully_connected(l2, self._config.hidden_size[2], activation_fn=None)
+			l3 = layers.batch_norm(l3)
+			l3 = tf.nn.relu(l3)
+			l3 = tf.nn.dropout(l3, self._config.dropout)
+
+			out = layers.fully_connected(l3, num_actions, activation_fn=None)
 		return out
 
 	def add_update_target_op(self, q_scope, target_q_scope):
