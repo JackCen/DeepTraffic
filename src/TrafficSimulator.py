@@ -1,16 +1,15 @@
 import numpy as np
-from config import config
 
 class TrafficSimulator(object):
 	def __init__(self, config):
 		self.canvasSize = [config.canvasHeight, config.canvasWidth]
 		self.gridHeight = config.gridHeight
 		self.numLanes = config.numLanes
-		self.carHeightGrid = config.carHeightGird #num of verticaal grids a car occupies
+		self.carHeightGrid = config.carHeightGrid #num of verticaal grids a car occupies
 		self.decisionFreq = config.decisionFreq #how many steps to simulate between two actions
 		self.numCars = config.numCars #other cars
 		self.speedScaling = config.speedScaling #scale mph to grids
-		self.statelength = config.stateLength #length of the state vector 
+		self.state_length = config.state_length #length of the state vector 
 		self.actionSpeedHistory = config.actionSpeedHistory #Length of history of actions and speeds
 		self.minSpeedFrac = config.minSpeedFrac # Require a min speed for each car
 		self.egoCarPos = config.egoCarPos # Fix ego car vertical axis
@@ -31,7 +30,7 @@ class TrafficSimulator(object):
 		# Ego car initialized to have top speed 80mph
 		self.EgoCarSpeedFrac = 1.0
 		# Position of ego car. vertical axis always fixed so that we only worry about relative movements of other cars
-		self.EgoCarPos = [self.egoCarPos, numLanes // 2] 
+		self.EgoCarPos = [self.egoCarPos, self.numLanes // 2] 
 		# Fill ego car speed into the grid (need to round vertical axis value)
 		self.grid[int(np.around(self.EgoCarPos[0])) : (int(np.around(self.EgoCarPos[0])) + self.carHeightGrid), \
 				int(np.around(self.EgoCarPos[1]))] = self.EgoCarTopSpeed * self.EgoCarSpeedFrac
@@ -157,12 +156,12 @@ class TrafficSimulator(object):
 		if int(np.around(self.carsPos[carID, 0])) >= self.grid.shape[0]:
 			lane = np.random.randint(self.grid.shape[1])
 			if self.carsPos[self.carsPos[:,1] == lane, 0].shape[0] == 0:
-				gridHeight = (1 - self.carheightGrid)
+				gridHeight = (1 - self.carHeightGrid)
 			else:
-				gridHeight = min((1 - self.carheightGrid), np.min(self.carsPos[self.carsPos[:,1] == lane, 0]) - 2 * self.carHeightGrid)
+				gridHeight = min((1 - self.carHeightGrid), np.min(self.carsPos[self.carsPos[:,1] == lane, 0]) - 2 * self.carHeightGrid)
 			self.carsPos[carID, 0] = gridHeight
 			self.carsPos[carID, 1] = lane
-		elif int(np.around(self.carsPos[carID, 0])) < (1 - self.carheightGrid):
+		elif int(np.around(self.carsPos[carID, 0])) < (1 - self.carHeightGrid):
 			lane = np.random.randint(self.grid.shape[1])
 			if self.carsPos[self.carsPos[:,1] == lane, 0].shape[0] == 0:
 				gridHeight = self.grid.shape[0] - 1
@@ -175,8 +174,6 @@ class TrafficSimulator(object):
 		self.grid[max(0, int(np.around(self.carsPos[carID, 0]))): min(int(np.around(self.carsPos[carID, 0])) + self.carHeightGrid, self.grid.shape[0]), int(np.around(self.carsPos[carID, 1]))] = self.carsTopSpeed[carID] * self.carsSpeedFrac[carID]
 
 		return True
-
-
 
 	def egoTurn(self, direction):
 		# direction: [-1: left; +1: right]
