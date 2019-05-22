@@ -12,7 +12,7 @@ class DQN(model):
 	Implement Neural Network with Tensorflow
 	"""
 	def add_placeholders_op(self):
-		state_shape = self._config.state_shape
+		state_length = self._config.state_length
 		state_history = self._config.state_history
 
 		# self.state: batch of states, type = float32
@@ -21,10 +21,10 @@ class DQN(model):
 		# self.state_p: batch of next states, type = float32
 		# self.lr: learning rate, type = float32
 
-		self.state = tf.placeholder(dtype=tf.float32, shape=[None, state_shape[0], state_shape[1], state_history])
+		self.state = tf.placeholder(dtype=tf.float32, shape=[None, state_shape, state_history])
 		self.a = tf.placeholder(dtype=tf.int32, shape=[None])
 		self.r = tf.placeholder(dtype=tf.float32, shape=[None])
-		self.state_p = tf.placeholder(dtype=tf.float32, shape=[None, state_shape[0], state_shape[1], state_history])
+		self.state_p = tf.placeholder(dtype=tf.float32, shape=[None, state_shape, state_history])
 		self.lr = tf.placeholder(dtype=tf.float32, shape=[])
 
 	def get_q_values_op(self, state, scope, reuse=False):

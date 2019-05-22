@@ -1,20 +1,26 @@
 import numpy as np
+from config import config
 
 class TrafficSimulator(object):
-	def __init__(self, numCars = 20, numLanes = 7,
-				canvasHeight = 700, canvasWidth = 140, 
-				gridHeight = 10, carHeightGird = 4,
-				decisionFreq = 5, speedScaling = 15):
-		self.canvasSize = [canvasHeight, canvasWidth]
-		self.gridHeight = gridHeight
-		self.numLanes = numLanes
-		self.carHeightGrid = carHeightGird #num of verticaal grids a car occupies
-		self.decisionFreq = decisionFreq #how many steps to simulate between two actions
-		self.numCars = numCars #other cars
-		self.speedScaling = speedScaling #scale mph to grids
+	def __init__(self, config):
+		self.canvasSize = [config.canvasHeight, config.canvasWidth]
+		self.gridHeight = config.gridHeight
+		self.numLanes = config.numLanes
+		self.carHeightGrid = config.carHeightGird #num of verticaal grids a car occupies
+		self.decisionFreq = config.decisionFreq #how many steps to simulate between two actions
+		self.numCars = config.numCars #other cars
+		self.speedScaling = config.speedScaling #scale mph to grids
+		self.statelength = config.stateLength #length of the state vector 
+		self.actionSpeedHistory = config.actionSpeedHistory #Length of history of actions and speeds
+		self.minSpeedFrac = config.minSpeedFrac # Require a min speed for each car
+		self.egoCarPos = config.egoCarPos # Fix ego car vertical axis
+		self.acc = config.acc # Acceleration per second
 
+		self.EgoCarTopSpeed = config.egoTopSpeed
+		self.carsTopSpeed = np.full((config.numCars), config.carTopSpeed)
 		self.reset()
 
+	# Reset Simulator
 	def reset(self):
 		self.grid = np.zeros((self.canvasSize[0] // self.gridHeight, self.numLanes)) # grid consists of the speed of occupied car
 		self.initEgoCar()
@@ -23,21 +29,19 @@ class TrafficSimulator(object):
 	# Initialize Ego Car parameters
 	def initEgoCar(self):
 		# Ego car initialized to have top speed 80mph
-		self.EgoCarTopSpeed = 80.0
 		self.EgoCarSpeedFrac = 1.0
 		# Position of ego car. vertical axis always fixed so that we only worry about relative movements of other cars
-		self.EgoCarPos = [18.0, 3] 
+		self.EgoCarPos = [self.egoCarPos, numLanes // 2] 
 		# Fill ego car speed into the grid (need to round vertical axis value)
 		self.grid[int(np.around(self.EgoCarPos[0])) : (int(np.around(self.EgoCarPos[0])) + self.carHeightGrid), \
 				int(np.around(self.EgoCarPos[1]))] = self.EgoCarTopSpeed * self.EgoCarSpeedFrac
 		# Tracking history for potential reward function calculation
-		self.actionHistory = [0] * 5
-		self.speedHistory = [self.EgoCarTopSpeed] * 5
+		self.actionHistory = [0] * self.actionSpeedHistory
+		self.speedHistory = [self.EgoCarTopSpeed] * self.actionSpeedHistory
 
 	# Initialize other 20 cars parameters
 	def initCars(self):
 		# All other cars initialized to have top speed 65mph
-		self.carsTopSpeed = np.full((self.numCars), 65.0)
 		self.carsSpeedFrac = np.full((self.numCars), 1.0)
 		
 		# Randomly initialize all car positions
@@ -59,7 +63,7 @@ class TrafficSimulator(object):
 	def progress(self, action):
 		# Valid actions: [0: stay the same; 1: left; 2: right; 3: accelerate; 4: decelerate]
 		self.actionHistory.append(action)
-		if len(self.actionHistory) >= 5: self.actionHistory.pop(0) # Potentially only keep a short history
+		if len(self.actionHistory) >= self.actionSpeedHistory: self.actionHistory.pop(0) # Potentially only keep a short history
 
 		# Assume all other cars follow a random action
 		carAction = np.random.randint(0, 5, self.numCars)
@@ -87,9 +91,9 @@ class TrafficSimulator(object):
 					elif action == 2 and not egoTurned:
 						egoTurned = self.egoTurn(1)
 					if action == 3:
-						self.EgoCarSpeedFrac = min(1.00, self.EgoCarSpeedFrac + 0.01)
+						self.EgoCarSpeedFrac = min(1.00, self.EgoCarSpeedFrac + self.acc)
 					elif action == 4:
-						self.EgoCarSpeedFrac = max(0.50, self.EgoCarSpeedFrac - 0.01)
+						self.EgoCarSpeedFrac = max(self.minSpeedFrac, self.EgoCarSpeedFrac - self.acc)
 					egoToMove = False
 					
 					self.checkCollisionEgo() #Check for collision. If dangerous, will change speed
@@ -100,9 +104,9 @@ class TrafficSimulator(object):
 				elif carAction[carID] == 2 and not carTurned[carID]:
 					carTurned[carID] = self.carTurn(1, carID)
 				elif carAction[carID] == 3:
-					self.carsSpeedFrac[carID] = min(1.00, self.carsSpeedFrac[carID] + 0.01)
+					self.carsSpeedFrac[carID] = min(1.00, self.carsSpeedFrac[carID] + self.acc)
 				elif carAction[carID] == 4:
-					self.carsSpeedFrac[carID] = max(0.50, self.carsSpeedFrac[carID] - 0.01)
+					self.carsSpeedFrac[carID] = max(self.minSpeedFrac, self.carsSpeedFrac[carID] - self.acc)
 				self.checkCollisionCar(carID) #Check for collision. If dangerous, will change speed
 
 			# Now update the grid and location of all cars
@@ -112,12 +116,9 @@ class TrafficSimulator(object):
 				carID = order[i]
 				self.moveCar(carID)
 
-			#print(self.carsTopSpeed)
-			#print(self.carsSpeedFrac)
-
 			# Append speed history for reward
 			self.speedHistory.append(self.EgoCarTopSpeed * self.EgoCarSpeedFrac)
-			if len(self.speedHistory) >= 5: self.speedHistory.pop(0)
+			if len(self.speedHistory) >= self.actionSpeedHistory: self.speedHistory.pop(0)
 
 		return self.reward()
 
@@ -156,12 +157,12 @@ class TrafficSimulator(object):
 		if int(np.around(self.carsPos[carID, 0])) >= self.grid.shape[0]:
 			lane = np.random.randint(self.grid.shape[1])
 			if self.carsPos[self.carsPos[:,1] == lane, 0].shape[0] == 0:
-				gridHeight = -3
+				gridHeight = (1 - self.carheightGrid)
 			else:
-				gridHeight = min(-3, np.min(self.carsPos[self.carsPos[:,1] == lane, 0]) - 2 * self.carHeightGrid)
+				gridHeight = min((1 - self.carheightGrid), np.min(self.carsPos[self.carsPos[:,1] == lane, 0]) - 2 * self.carHeightGrid)
 			self.carsPos[carID, 0] = gridHeight
 			self.carsPos[carID, 1] = lane
-		elif int(np.around(self.carsPos[carID, 0])) < -3.0:
+		elif int(np.around(self.carsPos[carID, 0])) < (1 - self.carheightGrid):
 			lane = np.random.randint(self.grid.shape[1])
 			if self.carsPos[self.carsPos[:,1] == lane, 0].shape[0] == 0:
 				gridHeight = self.grid.shape[0] - 1
@@ -213,16 +214,11 @@ class TrafficSimulator(object):
 
 	# Return state of the simulator
 	def state(self):
-		#self.EgoCarTopSpeed * self.EgoCarSpeedFrac, self.EgoCarPos, self.actionHistory, 
-		#self.speedHistory, self.grid, self.carsTopSpeed * self.carsSpeedFrac, self.carsPos
-		toReturn = np.zeros(1 + 2 + 5 + 5 + 7 * 70 + 
-							self.numCars + 2 * self.numCars)
-		toReturn[0] = self.EgoCarTopSpeed * self.EgoCarSpeedFrac
-		toReturn[1] = self.EgoCarPos[0]
-		toReturn[2] = self.EgoCarPos[1]
-		toReturn[3:8] = self.actionHistory
-		toReturn[9:14] = self.speedHistory
-		toReturn[15: (15 + 490)] = np.ndarray.flatten(self.grid)
-		toReturn[505: 535] = self.carsTopSpeed * self.carsSpeedFrac
-		toReturn[535: 575] = np.ndarray.flatten(self.carsPos)
+		toReturn = self.EgoCarTopSpeed * self.EgoCarSpeedFrac
+		toReturn = np.append(toReturn, self.EgoCarPos)
+		toReturn = np.append(toReturn, self.actionHistory)
+		toReturn = np.append(toReturn, self.speedHistory)
+		toReturn = np.append(toReturn, np.ndarray.flatten(self.grid))
+		toReturn = np.append(toReturn, self.carsTopSpeed * self.carsSpeedFrac)
+		toReturn = np.append(toReturn, np.ndarray.flatten(self.carsPos))
 		return toReturn

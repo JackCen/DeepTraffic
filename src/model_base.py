@@ -18,7 +18,7 @@ class model(object):
 			self._config.lr_begin,
 			self._config.lr_end,
 			self._config.lr_nsteps)
-		self._sim = TrafficSimulator()
+		self._sim = TrafficSimulator(config)
 		self._bf = ReplayBuffer(1000000, config)
 
 		self._action_fn = self.get_action_fn()
@@ -56,7 +56,7 @@ class model(object):
 	def pad_state(self, states, state_history):
 		tmp_states = states
 		tmp_state = np.concatenate([np.expand_dims(state, -1) for state in tmp_states], axis=-1)
-		tmp_state = np.pad(tmp_state, ((0,0),(0,0),(state_history-tmp_state.shape[-1],0)), 'constant', constant_values=0)
+		tmp_state = np.pad(tmp_state, ((0,0),(state_history-tmp_state.shape[-1],0)), 'constant', constant_values=0)
 		return tmp_state
 
 	def simulate_an_episode(self, T, action_fn):

@@ -7,7 +7,7 @@ class ReplayBuffer(object):
 		self.last_idx = -1
 		self.history_size = 0
 
-		self.states_stack = np.empty([self.size]+list(self.config.state_shape)+[self.config.state_history+1], dtype=np.float32)
+		self.states_stack = np.empty([self.size]+[self.state_length]+[self.config.state_history+1], dtype=np.float32)
 		self.actions = np.empty([self.size], dtype=np.int32)
 		self.rewards = np.empty([self.size], dtype=np.float32)
 
@@ -21,7 +21,7 @@ class ReplayBuffer(object):
 			
 			tmp = states[max(idx - self.config.state_history + 1, 0) : (idx + 2)]
 			tmp_state = np.concatenate([np.expand_dims(state, -1) for state in tmp_states], axis=-1)
-			self.states_stack[self.last_idx] = np.pad(tmp_state, ((0,0),(0,0),(self.config.state_history+1-tmp_state.shape[-1],0)), 'constant', constant_values=0)
+			self.states_stack[self.last_idx] = np.pad(tmp_state, ((0,0),(self.config.state_history+1-tmp_state.shape[-1],0)), 'constant', constant_values=0)
 			self.history_size += 1
 
 	def sample(self, batch_size):
@@ -29,8 +29,8 @@ class ReplayBuffer(object):
 		np.random.shuffle(idx)
 		idx_choice = idx[:batch_size]
 
-		states = self.states_stack[idx_choice][:,:,:,:-1]
-		states_p = self.states_stack[idx_choice][:,:,:,1:]
+		states = self.states_stack[idx_choice][:,:,:-1]
+		states_p = self.states_stack[idx_choice][:,:,1:]
 		actions = self.actions[idx_choice]
 		rewards = self.rewards[idx_choice]
 

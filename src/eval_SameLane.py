@@ -4,13 +4,13 @@ from config import Config
 
 def get_best_action_fn():
 	return 3
-	
-def evaluate_policy(T = 100, N = 100):
+
+def evaluate_policy(config):
 	rewards = []
-	for k in range(N):
+	for k in range(config.N):
 		print(k)
-		simulator = TrafficSimulator()
-		rewards.append(simulate_reward(simulator, T))
+		simulator = TrafficSimulator(config)
+		rewards.append(simulate_reward(simulator, config.T))
 	return rewards
 
 def simulate_reward(simulator, T):
@@ -22,7 +22,7 @@ def simulate_reward(simulator, T):
 
 def main():
 	config = Config()
-	rewards = evaluate_policy(config.T, config.N)
+	rewards = evaluate_policy(config)
 	print(np.mean(rewards))
 
 if __name__ == '__main__':
