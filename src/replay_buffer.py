@@ -20,7 +20,7 @@ class ReplayBuffer(object):
 			self.rewards[self.last_idx] = rewards[idx]
 			
 			tmp = states[max(idx - self.config.state_history + 1, 0) : (idx + 2)]
-			tmp_state = np.concatenate([np.expand_dims(state, -1) for state in tmp_states], axis=-1)
+			tmp_state = np.concatenate([np.expand_dims(state, -1) for state in tmp], axis=-1)
 			self.states_stack[self.last_idx] = np.pad(tmp_state, ((0,0),(self.config.state_history+1-tmp_state.shape[-1],0)), 'constant', constant_values=0)
 			self.history_size += 1
 
