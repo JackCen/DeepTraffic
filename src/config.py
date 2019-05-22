@@ -5,17 +5,17 @@ class Config:
 		self.nsteps_train = 100000
 		self.print_freq = 50
 		self.target_update_freq = 1000
-		self.saving_freq = 25000
+		self.saving_freq = 2500
 		self.simulation_freq = 1000
 		self.model_output = '../output'
 
 		self.eps_begin = 1.0
 		self.eps_end = 0.1
 		self.nsteps = 1000
-		self.dropout= 0.9
+		self.dropout = 0.6
 
-		self.lr_begin = 0.00025
-		self.lr_end = 0.00005
+		self.lr_begin = 0.00005
+		self.lr_end = 0.00001
 		self.lr_nsteps = self.nsteps_train / 2
 
 		self.gamma = 0.99
