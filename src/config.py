@@ -43,7 +43,7 @@ class Config:
 		self.carTopSpeed = 65.0
 		self.acc = 0.01
 		self.minSpeedFrac = 0.5
-		self.egoCarPos = 18.0
+		self.egoCarPos = 18
 		self.state_length = 1 + 2 + 2 * self.actionSpeedHistory + 3 * self.numCars
 								# + self.numLanes * self.canvasHeight // self.gridHeight
 								
