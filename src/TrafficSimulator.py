@@ -1,4 +1,5 @@
 import numpy as np
+from config import Config
 
 class TrafficSimulator(object):
 	def __init__(self, config):
@@ -119,6 +120,8 @@ class TrafficSimulator(object):
 			self.speedHistory.append(self.EgoCarTopSpeed * self.EgoCarSpeedFrac)
 			if len(self.speedHistory) > self.actionSpeedHistory: self.speedHistory.pop(0)
 
+			self.print_grid()
+
 		return self.reward()
 
 	# Check collision for ego car
@@ -150,6 +153,7 @@ class TrafficSimulator(object):
 
 		diff = ((self.carsTopSpeed[carID] * self.carsSpeedFrac[carID]) - 
 										(self.EgoCarTopSpeed * self.EgoCarSpeedFrac)) / self.speedScaling
+		print("===>diff: ", diff)
 		self.carsPos[carID, 0] += diff
 
 		# Move out of bounds, top -> bottom and bottom -> top
@@ -207,7 +211,8 @@ class TrafficSimulator(object):
 
 	# Print the grid as temp graphic outputs
 	def print_grid(self):
-		print(np.flip(self.grid, axis=0))
+		print(np.flip(np.round(self.grid, axis=0)))
+		print("===============================================")
 
 	# Return state of the simulator
 	def state(self):
@@ -219,3 +224,12 @@ class TrafficSimulator(object):
 		toReturn = np.append(toReturn, self.carsTopSpeed * self.carsSpeedFrac)
 		toReturn = np.append(toReturn, np.ndarray.flatten(self.carsPos))
 		return toReturn
+
+
+if __name__ == '__Main__':
+	config = Config()
+	sim = TrafficSimulator(config)
+	for i in range(1000):
+		action = np.random.randint(0, 5)
+		sim.progress(action)
+
