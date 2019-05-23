@@ -1,4 +1,5 @@
 import numpy as np
+import time
 from config import Config
 
 class TrafficSimulator(object):
@@ -153,7 +154,6 @@ class TrafficSimulator(object):
 
 		diff = ((self.carsTopSpeed[carID] * self.carsSpeedFrac[carID]) - 
 										(self.EgoCarTopSpeed * self.EgoCarSpeedFrac)) / self.speedScaling
-		print("===>diff: ", diff)
 		self.carsPos[carID, 0] += diff
 
 		# Move out of bounds, top -> bottom and bottom -> top
@@ -211,8 +211,10 @@ class TrafficSimulator(object):
 
 	# Print the grid as temp graphic outputs
 	def print_grid(self):
-		print(np.flip(np.round(self.grid, axis=0)))
+		print(np.round(np.flip(self.grid, axis=0)))
 		print("===============================================")
+		print(self.EgoCarPos, self.EgoCarTopSpeed * self.EgoCarSpeedFrac)
+		time.sleep(1)
 
 	# Return state of the simulator
 	def state(self):
