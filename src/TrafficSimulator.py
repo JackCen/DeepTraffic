@@ -226,7 +226,7 @@ class TrafficSimulator(object):
 		return toReturn
 
 
-if __name__ == '__Main__':
+if __name__ == '__main__':
 	config = Config()
 	sim = TrafficSimulator(config)
 	for i in range(1000):
