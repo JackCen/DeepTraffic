@@ -134,6 +134,7 @@ class DQN(model):
 		if self._config.mode == "test":
 			print("Q value and best action:")
 			print(q)
+			print(state)
 			print(action)
 
 		q_value = q[action]
