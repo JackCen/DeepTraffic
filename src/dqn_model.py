@@ -97,7 +97,7 @@ class DQN(model):
 		t = 0
 		total_loss = 0
 
-		sw = tf.summary.FileWriter(self._config.model_output, sess.graph)
+		sw = tf.summary.FileWriter(self._config.model_output, self.sess.graph)
 
 		while t < self._config.nsteps_train:
 			t += 1
