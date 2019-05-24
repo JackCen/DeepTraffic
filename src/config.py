@@ -25,23 +25,23 @@ class Config:
 
 		self.T = 100
 		self.N = 100
-		self.nBufferSample = 3000
+		self.nBufferSample = 1000
 
 		self.hidden_size = [128, 64, 32]
 		self.numActions = 5
 
-		self.numCars = 20
+		self.numCars = 10
 		self.numLanes = 7
 		self.canvasHeight = 700
 		self.canvasWidth = 140
 		self.gridHeight = 10
 		self.carHeightGrid = 4
 		self.decisionFreq = 5
-		self.speedScaling = 15
+		self.speedScaling = 5
 		self.actionSpeedHistory = 5
 		self.egoTopSpeed = 80.0
 		self.carTopSpeed = 65.0
-		self.acc = 0.01
+		self.acc = 0.04
 		self.minSpeedFrac = 0.5
 		self.egoCarPos = 18.0
 		self.state_length = 1 + 2 + 2 * self.actionSpeedHistory + 3 * self.numCars
