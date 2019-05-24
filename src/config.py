@@ -14,18 +14,18 @@ class Config:
 		self.nsteps = 1000
 		self.dropout = 0.6
 
-		self.lr_begin = 0.00005
-		self.lr_end = 0.00001
+		self.lr_begin = 0.001
+		self.lr_end = 0.0001
 		self.lr_nsteps = self.nsteps_train / 2
 
-		self.gamma = 0.99
+		self.gamma = 0.7
 		self.grad_clip = True
 		self.clip_val = 10
-		self.batch_size = 32
+		self.batch_size = 64
 
 		self.T = 100
 		self.N = 100
-		self.nBufferSample = 100
+		self.nBufferSample = 3000
 
 		self.hidden_size = [128, 64, 32]
 		self.numActions = 5
