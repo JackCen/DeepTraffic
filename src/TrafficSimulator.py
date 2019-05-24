@@ -220,13 +220,15 @@ class TrafficSimulator(object):
 
 	# Return state of the simulator
 	def state(self):
-		toReturn = self.EgoCarTopSpeed * self.EgoCarSpeedFrac
-		toReturn = np.append(toReturn, self.EgoCarPos)
-		toReturn = np.append(toReturn, self.actionHistory)
-		toReturn = np.append(toReturn, self.speedHistory)
+		toReturn = self.EgoCarTopSpeed * self.EgoCarSpeedFrac / 80.0
+		toReturn = np.append(toReturn, self.EgoCarPos[0] / 70.0)
+		toReturn = np.append(toReturn, self.EgoCarPos[1] / 6.0)
+		toReturn = np.append(toReturn, self.actionHistory / 4.0)
+		toReturn = np.append(toReturn, self.speedHistory / 80.0)
 		#toReturn = np.append(toReturn, np.ndarray.flatten(self.grid))
-		toReturn = np.append(toReturn, self.carsTopSpeed * self.carsSpeedFrac)
-		toReturn = np.append(toReturn, np.ndarray.flatten(self.carsPos))
+		toReturn = np.append(toReturn, self.carsTopSpeed * self.carsSpeedFrac / 80.0)
+		toReturn = np.append(toReturn, self.carsPos[:,0] / 70.0)
+		toReturn = np.append(toReturn, self.carsPos[:,1] / 6.0)
 		return toReturn
 
 
