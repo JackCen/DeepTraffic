@@ -223,7 +223,7 @@ class TrafficSimulator(object):
 		toReturn = self.EgoCarTopSpeed * self.EgoCarSpeedFrac / 80.0
 		toReturn = np.append(toReturn, self.EgoCarPos[0] / 70.0)
 		toReturn = np.append(toReturn, self.EgoCarPos[1] / 6.0)
-		toReturn = np.append(toReturn, self.actionHistory / 4.0)
+		toReturn = np.append(toReturn, [a / 4.0 for a in self.actionHistory])
 		toReturn = np.append(toReturn, self.speedHistory / 80.0)
 		#toReturn = np.append(toReturn, np.ndarray.flatten(self.grid))
 		toReturn = np.append(toReturn, self.carsTopSpeed * self.carsSpeedFrac / 80.0)
