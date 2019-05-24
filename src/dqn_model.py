@@ -2,6 +2,7 @@ import sys
 import numpy as np
 import tensorflow as tf
 import tensorflow.contrib.layers as layers
+from tensorflow.core.framework import summary_pb2
 import os
 
 from config import Config
@@ -95,6 +96,9 @@ class DQN(model):
 		print("Finished sample buffer")
 		t = 0
 		total_loss = 0
+
+		sw = tf.summary.FileWriter(self._config.model_output, sess.graph)
+
 		while t < self._config.nsteps_train:
 			t += 1
 			self._lr_schedule.update(t)
@@ -104,6 +108,10 @@ class DQN(model):
 			if t % self._config.print_freq == 0:
 				sys.stdout.write('Iter {} \t Loss {} \n'.format(t, total_loss / t))
 				sys.stdout.flush()
+			value_loss_train = summary_pb2.Summary.Value(tag='Train_epoch_loss', simple_value=total_loss / t)
+			summary = summary_pb2.Summary(value=[value_loss_train])
+			sw.add_summary(summary, global_step = t)
+			sw.flush()
 
 	def train_step(self, t, batch_size, lr):
 		states, states_p, actions, rewards = self._bf.sample(batch_size)
