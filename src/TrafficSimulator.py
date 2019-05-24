@@ -121,7 +121,7 @@ class TrafficSimulator(object):
 			self.speedHistory.append(self.EgoCarTopSpeed * self.EgoCarSpeedFrac)
 			if len(self.speedHistory) > self.actionSpeedHistory: self.speedHistory.pop(0)
 
-			self.print_grid()
+			#self.print_grid()
 
 		return self.reward()
 
@@ -150,7 +150,8 @@ class TrafficSimulator(object):
 	# Update the position and grid for all other cars according to relative speed diff
 	def moveCar(self, carID):
 		# remove the grid of our old positions 
-		self.grid[max(0, int(np.around(self.carsPos[carID, 0]))): min(int(np.around(self.carsPos[carID, 0])) + self.carHeightGrid, self.grid.shape[0]), int(np.around(self.carsPos[carID, 1]))] = 0.0
+		if int(np.around(self.carsPos[carID, 0])) < self.grid.shape[0] and (int(np.around(self.carsPos[carID, 0])) + self.carHeightGrid) - 1 >= 0:
+			self.grid[max(0, int(np.around(self.carsPos[carID, 0]))): min(int(np.around(self.carsPos[carID, 0])) + self.carHeightGrid, self.grid.shape[0]), int(np.around(self.carsPos[carID, 1]))] = 0.0
 
 		diff = ((self.carsTopSpeed[carID] * self.carsSpeedFrac[carID]) - 
 										(self.EgoCarTopSpeed * self.EgoCarSpeedFrac)) / self.speedScaling
@@ -175,7 +176,8 @@ class TrafficSimulator(object):
 			self.carsPos[carID, 1] = lane
 
 		# Update grid
-		self.grid[max(0, int(np.around(self.carsPos[carID, 0]))): min(int(np.around(self.carsPos[carID, 0])) + self.carHeightGrid, self.grid.shape[0]), int(np.around(self.carsPos[carID, 1]))] = self.carsTopSpeed[carID] * self.carsSpeedFrac[carID]
+		if int(np.around(self.carsPos[carID, 0])) < self.grid.shape[0] and (int(np.around(self.carsPos[carID, 0])) + self.carHeightGrid) - 1 >= 0:
+			self.grid[max(0, int(np.around(self.carsPos[carID, 0]))): min(int(np.around(self.carsPos[carID, 0])) + self.carHeightGrid, self.grid.shape[0]), int(np.around(self.carsPos[carID, 1]))] = self.carsTopSpeed[carID] * self.carsSpeedFrac[carID]
 
 		return True
 
@@ -234,4 +236,5 @@ if __name__ == '__main__':
 	for i in range(1000):
 		action = np.random.randint(0, 5)
 		sim.progress(action)
+		sim.print_grid()
 
