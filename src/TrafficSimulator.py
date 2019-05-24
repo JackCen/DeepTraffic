@@ -1,4 +1,6 @@
 import numpy as np
+import time
+from config import Config
 
 class TrafficSimulator(object):
 	def __init__(self, config):
@@ -119,6 +121,8 @@ class TrafficSimulator(object):
 			self.speedHistory.append(self.EgoCarTopSpeed * self.EgoCarSpeedFrac)
 			if len(self.speedHistory) > self.actionSpeedHistory: self.speedHistory.pop(0)
 
+			self.print_grid()
+
 		return self.reward()
 
 	# Check collision for ego car
@@ -207,7 +211,10 @@ class TrafficSimulator(object):
 
 	# Print the grid as temp graphic outputs
 	def print_grid(self):
-		print(np.flip(self.grid, axis=0))
+		print(np.round(np.flip(self.grid, axis=0)))
+		print("===============================================")
+		print(self.EgoCarPos, self.EgoCarTopSpeed * self.EgoCarSpeedFrac)
+		time.sleep(1)
 
 	# Return state of the simulator
 	def state(self):
@@ -219,3 +226,12 @@ class TrafficSimulator(object):
 		toReturn = np.append(toReturn, self.carsTopSpeed * self.carsSpeedFrac)
 		toReturn = np.append(toReturn, np.ndarray.flatten(self.carsPos))
 		return toReturn
+
+
+if __name__ == '__main__':
+	config = Config()
+	sim = TrafficSimulator(config)
+	for i in range(1000):
+		action = np.random.randint(0, 5)
+		sim.progress(action)
+
