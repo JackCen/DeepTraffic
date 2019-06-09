@@ -62,6 +62,8 @@ class TrafficSimulator(object):
 
 	# Take an action for ego car, and simulate {{self.decisionFreq}} steps
 	def progress(self, action):
+		actionDic = {0: '==', 1: '<--', 2: '-->', 3: '/\\', 4: '\\/'}
+		# print("action: ", actionDic[action])
 		# Valid actions: [0: stay the same; 1: left; 2: right; 3: accelerate; 4: decelerate]
 		self.actionHistory.append(action)
 		if len(self.actionHistory) > self.actionSpeedHistory: self.actionHistory.pop(0) # Potentially only keep a short history
@@ -209,26 +211,44 @@ class TrafficSimulator(object):
 
 	# Placeholder reward function
 	def reward(self):
-		return np.mean(self.speedHistory)
+		return np.mean(self.speedHistory[-1])
 
 	# Print the grid as temp graphic outputs
 	def print_grid(self):
 		print(np.round(np.flip(self.grid, axis=0)))
 		print("===============================================")
-		print(self.EgoCarPos, self.EgoCarTopSpeed * self.EgoCarSpeedFrac)
+		print("EgoCarPos: {}, EgoCarSpeed: {} \n".format(self.EgoCarPos[1], self.EgoCarTopSpeed * self.EgoCarSpeedFrac))
 		time.sleep(1)
 
 	# Return state of the simulator
 	def state(self):
+		"""
 		toReturn = self.EgoCarTopSpeed * self.EgoCarSpeedFrac / 80.0
 		toReturn = np.append(toReturn, self.EgoCarPos[0] / 70.0)
 		toReturn = np.append(toReturn, self.EgoCarPos[1] / 6.0)
 		toReturn = np.append(toReturn, [a / 4.0 for a in self.actionHistory])
 		toReturn = np.append(toReturn, [s / 80.0 for s in self.speedHistory])
 		#toReturn = np.append(toReturn, np.ndarray.flatten(self.grid))
-		toReturn = np.append(toReturn, self.carsTopSpeed * self.carsSpeedFrac / 80.0)
+		# toReturn = np.append(toReturn, self.carsTopSpeed * self.carsSpeedFrac / 80.0)
+		toReturn = np.append(toReturn, self.carsTopSpeed * self.carsSpeedFrac / 65.0)
 		toReturn = np.append(toReturn, self.carsPos[:,0] / 70.0)
 		toReturn = np.append(toReturn, self.carsPos[:,1] / 6.0)
+		"""
+
+		toReturn = np.ndarray.flatten(self.grid)
+
+		"""
+		toReturn = self.EgoCarTopSpeed * self.EgoCarSpeedFrac
+		toReturn = np.append(toReturn, self.EgoCarPos[0])
+		toReturn = np.append(toReturn, self.EgoCarPos[1])
+		toReturn = np.append(toReturn, [a for a in self.actionHistory])
+		toReturn = np.append(toReturn, [s for s in self.speedHistory])
+		# toReturn = np.append(toReturn, self.carsTopSpeed * self.carsSpeedFrac / 80.0)
+		toReturn = np.append(toReturn, self.carsTopSpeed * self.carsSpeedFrac)
+		toReturn = np.append(toReturn, self.carsPos[:,0])
+		toReturn = np.append(toReturn, self.carsPos[:,1])
+		"""
+
 		return toReturn
 
 

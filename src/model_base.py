@@ -39,6 +39,7 @@ class model(object):
 		pass
 
 	def get_action(self, state):
+		# print("get_action: epsilon", self._eps_schedule.get_epsilon())
 		if np.random.random() < self._eps_schedule.get_epsilon():
 			return self.get_random_action(state)[0]
 		else:
@@ -70,15 +71,21 @@ class model(object):
 
 		for t in range(T):
 			state = self._sim.state()
+			# print("++++++++++++++++++++++++++++++++>")
+			self._sim.print_grid()
 			states.append(state)
+			# print("state vector: {} len: {}".format(state, len(state)))
 
 			state_input = self.pad_state(states[-self._config.state_history:], self._config.state_history)
+			# print("state input: ", state_input)
 			action = action_fn(state_input)
 			actions.append(action)
 
 			reward = self._sim.progress(action)
 			rewards.append(reward)
+			# print("action: {}, reward: {}".format(action, reward))
 
+		print("actions: ", actions)
 		return (states, rewards, actions)
 
 
@@ -87,4 +94,5 @@ class model(object):
 			if s % 100 == 0:
 				print("Sample buffer: ", s)
 			states, rewards, actions = self.simulate_an_episode(self._config.T, self._action_fn)
+			# print("actions: {}".format(actions))
 			self._bf.store(states, actions, rewards)
