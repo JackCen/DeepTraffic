@@ -17,7 +17,7 @@ def simulate_reward(simulator, T):
 	r = np.zeros(T)
 	for t in range(T):
 		r[t] = simulator.progress(get_best_action_fn())
-		print(t, r[t])
+		# print(t, r[t])
 	return r
 
 def main():

@@ -106,7 +106,8 @@ class DQN(model):
 			loss_t = self.train_step(t, self._config.batch_size, self._lr_schedule.get_epsilon())
 			total_loss += loss_t
 			if t % self._config.print_freq == 0:
-				sys.stdout.write('Iter {} \t Loss {} \n'.format(t, total_loss / t))
+				eps = self._eps_schedule.get_epsilon()
+				sys.stdout.write('Iter {} \t Loss {} \t Eps {} \n'.format(t, total_loss / t, eps))
 				sys.stdout.flush()
 			value_loss_train = summary_pb2.Summary.Value(tag='Train_epoch_loss', simple_value=total_loss / t)
 			summary = summary_pb2.Summary(value=[value_loss_train])
@@ -122,7 +123,6 @@ class DQN(model):
 		if t % self._config.target_update_freq == 0:
 			self.sess.run(self.update_target_op)
 		if t % self._config.saving_freq == 0:
-			print(self._config.model_output)
 			if not os.path.exists(self._config.model_output):
 				os.makedirs(self._config.model_output)
 			self.saver.save(self.sess, save_path=os.path.join(self._config.model_output, 'model'))
@@ -139,11 +139,12 @@ class DQN(model):
 	def get_best_action(self, state):
 		q = self.get_q_values(state)[0]
 		action = np.argmax(q)
-		if self._config.mode == "test":
-			print("Q value and best action:")
-			print(q)
-			print(state)
-			print(action)
+		# if self._config.mode == "test":
+			# print("Q value and best action:")
+			# print(q)
+			# print(state)
+			# self._sim.print_grid()
+			# print(action)
 
 		q_value = q[action]
 		return (action, q_value)
@@ -165,3 +166,6 @@ if __name__ == '__main__':
 	model.initialize()
 	print("Initialized!")
 	model.train()
+
+
+	
